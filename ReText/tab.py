@@ -62,7 +62,7 @@ class ReTextTab(QSplitter):
 		return self._fileName
 
 	def __init__(self, parent, fileName, previewState=PreviewDisabled):
-		super().__init__(Qt.Orientation.Horizontal, parent=parent)
+		super().__init__(Qt.Orientations.Horizontal, parent=parent)
 		self.p = parent
 		self._fileName = fileName
 		self.editBox = ReTextEdit(self)
