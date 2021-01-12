@@ -42,13 +42,12 @@ except ImportError:
 
 from PyQt6.QtCore import QDir, QFile, QFileInfo, QFileSystemWatcher, \
  QIODevice, QLocale, QMarginsF, QTextCodec, QTextStream, QTimer, QUrl, Qt, pyqtSlot
-from PyQt6.QtGui import QColor, QDesktopServices, QIcon, \
- QKeySequence, QPageLayout, QPageSize, QPagedPaintDevice, QPalette, \
- QTextDocument, QTextDocumentWriter
-from PyQt6.QtWidgets import QAction, QActionGroup, QApplication, QCheckBox, \
- QComboBox, QDialog, QFileDialog, QFileSystemModel, QFontDialog, \
- QInputDialog, QLineEdit, QMainWindow, QMenu, QMessageBox, QSplitter, QTabWidget, \
- QToolBar, QToolButton, QTreeView
+from PyQt6.QtGui import QAction, QActionGroup, QColor, QDesktopServices, QIcon, \
+ QFileSystemModel, QKeySequence, QPageLayout, QPageSize, QPagedPaintDevice, \
+ QPalette, QTextDocument, QTextDocumentWriter
+from PyQt6.QtWidgets import QApplication, QCheckBox, QComboBox, QDialog, \
+ QFileDialog, QFontDialog, QInputDialog, QLineEdit, QMainWindow, QMenu, \
+ QMessageBox, QSplitter, QTabWidget, QToolBar, QToolButton, QTreeView
 from PyQt6.QtPrintSupport import QPrintDialog, QPrintPreviewDialog, QPrinter
 
 class ReTextWindow(QMainWindow):
