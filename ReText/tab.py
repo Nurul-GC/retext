@@ -355,7 +355,7 @@ class ReTextTab(QSplitter):
 		# TODO: why do we open the file twice: for detecting encoding
 		# and for actual read? Can we open it just once?
 		openfile = QFile(self._fileName)
-		openfile.open(QFile.OpenModeFlag.ReadOnly)
+		openfile.open(QFile.OpenMode.ReadOnly)
 		stream = QTextStream(openfile)
 		encoding = encoding or globalSettings.defaultCodec
 		if encoding:
@@ -391,7 +391,7 @@ class ReTextTab(QSplitter):
 		text = cursor.selectedText().replace('\u2029', '\n')
 
 		savefile = QFile(fileName or self._fileName)
-		result = savefile.open(QFile.OpenModeFlag.WriteOnly)
+		result = savefile.open(QFile.OpenMode.WriteOnly)
 		if result:
 			savestream = QTextStream(savefile)
 			savestream << text

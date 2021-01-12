@@ -100,7 +100,7 @@ def main():
 	print('Using configuration file:', settings.fileName())
 	if globalSettings.appStyleSheet:
 		sheetfile = QFile(globalSettings.appStyleSheet)
-		sheetfile.open(QIODevice.OpenModeFlag.ReadOnly)
+		sheetfile.open(QIODevice.OpenMode.ReadOnly)
 		app.setStyleSheet(QTextStream(sheetfile).readAll())
 		sheetfile.close()
 	window = ReTextWindow()

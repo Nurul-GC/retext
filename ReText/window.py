@@ -424,7 +424,7 @@ class ReTextWindow(QMainWindow):
 		self.ss = None
 		if globalSettings.styleSheet:
 			sheetfile = QFile(globalSettings.styleSheet)
-			sheetfile.open(QIODevice.OpenModeFlag.ReadOnly)
+			sheetfile.open(QIODevice.OpenMode.ReadOnly)
 			self.ss = QTextStream(sheetfile).readAll()
 			sheetfile.close()
 
@@ -851,7 +851,7 @@ class ReTextWindow(QMainWindow):
 
 	def readExtension(self, fileName):
 		extFile = QFile(fileName)
-		extFile.open(QIODevice.OpenModeFlag.ReadOnly)
+		extFile.open(QIODevice.OpenMode.ReadOnly)
 		extension = {}
 		stream = QTextStream(extFile)
 		while not stream.atEnd():
@@ -972,7 +972,7 @@ class ReTextWindow(QMainWindow):
 		except Exception:
 			return self.printError()
 		htmlFile = QFile(fileName)
-		result = htmlFile.open(QIODevice.OpenModeFlag.WriteOnly)
+		result = htmlFile.open(QIODevice.OpenMode.WriteOnly)
 		if not result:
 			QMessageBox.warning(self, '',
 				self.tr("Cannot save to file because it is read-only!"))
