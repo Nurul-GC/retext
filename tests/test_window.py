@@ -27,8 +27,8 @@ import warnings
 
 from markups.abstract import ConvertedMarkup
 
-from PyQt5.QtCore import pyqtSignal, QObject, Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import pyqtSignal, QObject, Qt
+from PyQt6.QtWidgets import QApplication
 import ReText
 from ReText.window import ReTextWindow
 

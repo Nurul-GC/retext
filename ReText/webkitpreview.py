@@ -21,11 +21,11 @@ from ReText import globalSettings
 from ReText.syncscroll import SyncScroll
 from ReText.preview import ReTextWebPreview
 
-from PyQt5.QtCore import QStandardPaths
-from PyQt5.QtGui import QDesktopServices, QTextDocument
-from PyQt5.QtNetwork import QNetworkDiskCache
-from PyQt5.QtWebKit import QWebSettings
-from PyQt5.QtWebKitWidgets import QWebPage, QWebView
+from PyQt6.QtCore import QStandardPaths
+from PyQt6.QtGui import QDesktopServices, QTextDocument
+from PyQt6.QtNetwork import QNetworkDiskCache
+from PyQt6.QtWebKit import QWebSettings
+from PyQt6.QtWebKitWidgets import QWebPage, QWebView
 
 
 class ReTextWebKitPreview(ReTextWebPreview, QWebView):

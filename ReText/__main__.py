@@ -28,11 +28,11 @@ from ReText import datadirs, settings, globalSettings, app_version
 from ReText import initializeDataDirs
 from ReText.window import ReTextWindow
 
-from PyQt5.QtCore import QCommandLineOption, QCommandLineParser, QFile, \
+from PyQt6.QtCore import QCommandLineOption, QCommandLineParser, QFile, \
  QFileInfo, QIODevice, QLibraryInfo, QTextStream, QTranslator, Qt
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtNetwork import QNetworkProxyFactory
-from PyQt5.QtDBus import QDBusConnection, QDBusInterface
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtNetwork import QNetworkProxyFactory
+from PyQt6.QtDBus import QDBusConnection, QDBusInterface
 
 def canonicalize(option):
 	if option == '-':

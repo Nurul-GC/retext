@@ -40,16 +40,16 @@ try:
 except ImportError:
 	enchant = None
 
-from PyQt5.QtCore import QDir, QFile, QFileInfo, QFileSystemWatcher, \
+from PyQt6.QtCore import QDir, QFile, QFileInfo, QFileSystemWatcher, \
  QIODevice, QLocale, QMarginsF, QTextCodec, QTextStream, QTimer, QUrl, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QDesktopServices, QIcon, \
+from PyQt6.QtGui import QColor, QDesktopServices, QIcon, \
  QKeySequence, QPageLayout, QPageSize, QPagedPaintDevice, QPalette, \
  QTextDocument, QTextDocumentWriter
-from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QCheckBox, \
+from PyQt6.QtWidgets import QAction, QActionGroup, QApplication, QCheckBox, \
  QComboBox, QDialog, QFileDialog, QFileSystemModel, QFontDialog, \
  QInputDialog, QLineEdit, QMainWindow, QMenu, QMessageBox, QSplitter, QTabWidget, \
  QToolBar, QToolButton, QTreeView
-from PyQt5.QtPrintSupport import QPrintDialog, QPrintPreviewDialog, QPrinter
+from PyQt6.QtPrintSupport import QPrintDialog, QPrintPreviewDialog, QPrinter
 
 class ReTextWindow(QMainWindow):
 	def __init__(self, parent=None):

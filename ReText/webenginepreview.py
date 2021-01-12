@@ -19,10 +19,10 @@
 from ReText import globalSettings
 from ReText.preview import ReTextWebPreview
 from ReText.syncscroll import SyncScroll
-from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QDesktopServices, QGuiApplication, QTextDocument
-from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInfo, QWebEngineUrlRequestInterceptor
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView, QWebEngineSettings
+from PyQt6.QtCore import QEvent, Qt
+from PyQt6.QtGui import QDesktopServices, QGuiApplication, QTextDocument
+from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInfo, QWebEngineUrlRequestInterceptor
+from PyQt6.QtWebEngineWidgets import QWebEnginePage, QWebEngineView, QWebEngineSettings
 
 
 class ReTextWebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
