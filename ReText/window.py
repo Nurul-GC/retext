@@ -1225,7 +1225,7 @@ class ReTextWindow(QMainWindow):
 					'be disabled for this session to prevent data loss.')
 			messageBox = QMessageBox(QMessageBox.Icon.Warning, '', text)
 			reloadButton = messageBox.addButton(self.tr('Reload'), QMessageBox.ButtonRole.YesRole)
-			messageBox.addButton(QMessageBox.StandardButton.Cancel)
+			messageBox.addButton(QMessageBox.StandardButtons.Cancel)
 			messageBox.exec()
 			if messageBox.clickedButton() is reloadButton:
 				tab.readTextFromFile()
@@ -1246,10 +1246,10 @@ class ReTextWindow(QMainWindow):
 		self.tabWidget.setCurrentIndex(ind)
 		ret = QMessageBox.warning(self, '',
 			self.tr("The document has been modified.\nDo you want to save your changes?"),
-			QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel)
-		if ret == QMessageBox.StandardButton.Save:
+			QMessageBox.StandardButtons.Save | QMessageBox.StandardButtons.Discard | QMessageBox.StandardButtons.Cancel)
+		if ret == QMessageBox.StandardButtons.Save:
 			return self.saveFile(False)
-		elif ret == QMessageBox.StandardButton.Cancel:
+		elif ret == QMessageBox.StandardButtons.Cancel:
 			return False
 		return True
 

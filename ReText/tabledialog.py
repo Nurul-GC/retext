@@ -26,8 +26,8 @@ class InsertTableDialog(QDialog):
         self.parent = parent
         self.setWindowTitle(self.tr('Insert table'))
         buttonBox = QDialogButtonBox(self)
-        buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Ok |
-                                     QDialogButtonBox.StandardButton.Cancel)
+        buttonBox.setStandardButtons(QDialogButtonBox.StandardButtons.Ok |
+                                     QDialogButtonBox.StandardButtons.Cancel)
         buttonBox.accepted.connect(self.makeTable)
         buttonBox.rejected.connect(self.close)
 

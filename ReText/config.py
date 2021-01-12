@@ -95,10 +95,10 @@ class ConfigDialog(QDialog):
 		self.tabWidget = QTabWidget(self)
 		self.layout.addWidget(self.tabWidget)
 		buttonBox = QDialogButtonBox(self)
-		buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Ok |
-			QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Cancel)
+		buttonBox.setStandardButtons(QDialogButtonBox.StandardButtons.Ok |
+			QDialogButtonBox.StandardButtons.Apply | QDialogButtonBox.StandardButtons.Cancel)
 		buttonBox.accepted.connect(self.acceptSettings)
-		buttonBox.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.saveSettings)
+		buttonBox.button(QDialogButtonBox.StandardButtons.Apply).clicked.connect(self.saveSettings)
 		buttonBox.rejected.connect(self.close)
 		self.initWidgets()
 		self.configurators['rightMargin'].valueChanged.connect(self.handleRightMarginSet)

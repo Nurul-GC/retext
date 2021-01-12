@@ -32,7 +32,7 @@ class HtmlDialog(QDialog):
 		self.hl.docType = 'html'
 		verticalLayout.addWidget(self.textEdit)
 		buttonBox = QDialogButtonBox(self)
-		buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Close)
+		buttonBox.setStandardButtons(QDialogButtonBox.StandardButtons.Close)
 		buttonBox.rejected.connect(self.close)
 		verticalLayout.addWidget(buttonBox)
 
@@ -50,7 +50,7 @@ class LocaleDialog(QDialog):
 		self.checkBox = QCheckBox(self.tr('Set as default'), self)
 		verticalLayout.addWidget(self.checkBox)
 		buttonBox = QDialogButtonBox(self)
-		buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
+		buttonBox.setStandardButtons(QDialogButtonBox.StandardButtons.Cancel | QDialogButtonBox.StandardButtons.Ok)
 		verticalLayout.addWidget(buttonBox)
 		buttonBox.accepted.connect(self.accept)
 		buttonBox.rejected.connect(self.reject)

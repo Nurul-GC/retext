@@ -488,11 +488,11 @@ class ReTextTab(QSplitter):
 		"""
 		buttonReply = QMessageBox.question(self, self.tr('Create missing file?'),
 		                                   self.tr("The file '%s' does not exist.\n\nDo you want to create it?") % fileToCreate,
-		                                   QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-		                                   QMessageBox.StandardButton.No)
-		if buttonReply == QMessageBox.StandardButton.Yes:
+		                                   QMessageBox.StandardButtons.Yes | QMessageBox.StandardButtons.No,
+		                                   QMessageBox.StandardButtons.No)
+		if buttonReply == QMessageBox.StandardButtons.Yes:
 			return self.createFile(fileToCreate)
-		elif buttonReply == QMessageBox.StandardButton.No:
+		elif buttonReply == QMessageBox.StandardButtons.No:
 			return False
 
 	def resolveSourceFile(self, linkPath):
