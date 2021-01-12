@@ -77,7 +77,7 @@ def main():
 			break
 	QtTranslator = QTranslator()
 	QtTranslator.load("qtbase_" + globalSettings.uiLanguage,
-		QLibraryInfo.location(QLibraryInfo.LibraryLocation.TranslationsPath))
+		QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath))
 	app.installTranslator(RtTranslator)
 	app.installTranslator(QtTranslator)
 
