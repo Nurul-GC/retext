@@ -41,7 +41,7 @@ except ImportError:
 	enchant = None
 
 from PyQt6.QtCore import QDir, QFile, QFileInfo, QFileSystemWatcher, \
- QIODevice, QLocale, QMarginsF, QTextCodec, QTextStream, QTimer, QUrl, Qt, pyqtSlot
+ QIODevice, QLocale, QMarginsF, QTextStream, QTimer, QUrl, Qt, pyqtSlot
 from PyQt6.QtGui import QAction, QActionGroup, QColor, QDesktopServices, QIcon, \
  QFileSystemModel, QKeySequence, QPageLayout, QPageSize, QPagedPaintDevice, \
  QPalette, QTextDocument, QTextDocumentWriter
@@ -904,8 +904,7 @@ class ReTextWindow(QMainWindow):
 	def showEncodingDialog(self):
 		if not self.maybeSave(self.ind):
 			return
-		codecsSet = set(bytes(QTextCodec.codecForName(alias).name())
-		                for alias in QTextCodec.availableCodecs())
+		codecsSet = set()
 		encoding, ok = QInputDialog.getItem(self, '',
 			self.tr('Select file encoding from the list:'),
 			[bytes(b).decode() for b in sorted(codecsSet)],
@@ -979,8 +978,6 @@ class ReTextWindow(QMainWindow):
 				self.tr("Cannot save to file because it is read-only!"))
 			return
 		html = QTextStream(htmlFile)
-		if globalSettings.defaultCodec:
-			html.setCodec(globalSettings.defaultCodec)
 		html << htmltext
 		htmlFile.close()
 
