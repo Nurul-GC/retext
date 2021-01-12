@@ -156,7 +156,7 @@ class ConfigDialog(QDialog):
 			fileselector = option[2] if len(option) > 2 else False
 			if name is None:
 				header = QLabel('<h3>%s</h3>' % displayname, self)
-				layout.addWidget(header, index, 0, 1, 2, Qt.AlignmentFlag.AlignHCenter)
+				layout.addWidget(header, index, 0, 1, 2, Qt.Alignment.AlignHCenter)
 				continue
 			if displayname:
 				label = ClickableLabel(displayname + ':', self)
@@ -220,7 +220,7 @@ class ConfigDialog(QDialog):
 				self.configurators[name] = QLineEdit(self)
 				self.configurators[name].setText(value)
 			layout.addWidget(label, index, 0)
-			layout.addWidget(self.configurators[name], index, 1, Qt.AlignmentFlag.AlignRight)
+			layout.addWidget(self.configurators[name], index, 1, Qt.Alignment.AlignRight)
 		return page
 
 	def handleRightMarginSet(self, value):

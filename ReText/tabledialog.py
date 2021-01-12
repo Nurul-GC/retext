@@ -44,9 +44,9 @@ class InsertTableDialog(QDialog):
         self.columnsSpinBox.setValue(3)
 
         layout.addWidget(rowsLabel, 0, 0)
-        layout.addWidget(self.rowsSpinBox, 0, 1, Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.rowsSpinBox, 0, 1, Qt.Alignment.AlignRight)
         layout.addWidget(columnsLabel, 1, 0)
-        layout.addWidget(self.columnsSpinBox, 1, 1, Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.columnsSpinBox, 1, 1, Qt.Alignment.AlignRight)
         layout.addWidget(buttonBox, 2, 0, 1, 2)
 
     def makeTable(self):

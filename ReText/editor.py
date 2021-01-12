@@ -547,7 +547,7 @@ class LineNumberArea(QWidget):
 				break
 			number = str(cursor.blockNumber() - relativeTo).replace('-', '−')
 			painter.drawText(0, rect.top(), self.width() - 2,
-			                 fontHeight, Qt.AlignmentFlag.AlignRight, number)
+			                 fontHeight, Qt.Alignment.AlignRight, number)
 			cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock)
 			atEnd = cursor.atEnd()
 			if not atEnd:
