@@ -60,7 +60,6 @@ def main():
 
 	# Needed for Qt WebEngine on Windows
 	QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-	QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 	app = QApplication(sys.argv)
 	app.setOrganizationName("ReText project")
 	app.setApplicationName("ReText")
