@@ -109,7 +109,7 @@ def main():
 		and not parser.isSet(newWindowOption))
 	connection = QDBusConnection.sessionBus()
 	if connection.isConnected() and openInExistingWindow:
-		connection.registerObject('/', window, QDBusConnection.RegisterOption.ExportAllSlots)
+		connection.registerObject('/', window, QDBusConnection.RegisterOptions.ExportAllSlots)
 		serviceName = 'me.mitya57.ReText'
 		if not connection.registerService(serviceName) and filesToOpen:
 			print('Opening the file(s) in the existing window of ReText.')
