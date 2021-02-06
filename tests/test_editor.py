@@ -155,7 +155,7 @@ class TestSurround(unittest.TestCase):
 		if key == Qt.Key.Key_Apostrophe: return '\''
 
 	def getEvent(self, key):
-		return QKeyEvent(QEvent.Type.KeyPress, key, Qt.KeyboardModifier.NoModifier, text=self.getText(key))
+		return QKeyEvent(QEvent.Type.KeyPress, key, Qt.KeyboardModifiers.NoModifier, text=self.getText(key))
 
 	def test_isSurroundKey(self):
 		# close keys should not start a surrounding

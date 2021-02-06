@@ -128,7 +128,7 @@ class ReTextWebEnginePreview(ReTextWebPreview, QWebEngineView):
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.Type.Wheel:
-            if QGuiApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+            if QGuiApplication.keyboardModifiers() == Qt.KeyboardModifiers.ControlModifier:
                 self.wheelEvent(event)
                 return True
         return False

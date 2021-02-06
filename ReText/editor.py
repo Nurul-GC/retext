@@ -185,7 +185,7 @@ class ReTextEdit(QTextEdit):
 
 	def wheelEvent(self, event):
 		modifiers = QGuiApplication.keyboardModifiers()
-		if modifiers == Qt.KeyboardModifier.ControlModifier:
+		if modifiers == Qt.KeyboardModifiers.ControlModifier:
 			font = globalSettings.editorFont
 			size = font.pointSize()
 			scroll = event.angleDelta().y()
@@ -290,25 +290,25 @@ class ReTextEdit(QTextEdit):
 	def keyPressEvent(self, event):
 		key = event.key()
 		cursor = self.textCursor()
-		if key == Qt.Key.Key_Backspace and event.modifiers() & Qt.KeyboardModifier.GroupSwitchModifier:
+		if key == Qt.Key.Key_Backspace and event.modifiers() & Qt.KeyboardModifiers.GroupSwitchModifier:
 			# Workaround for https://bugreports.qt.io/browse/QTBUG-49771
 			event = QKeyEvent(event.type(), event.key(),
-				event.modifiers() ^ Qt.KeyboardModifier.GroupSwitchModifier)
+				event.modifiers() ^ Qt.KeyboardModifiers.GroupSwitchModifier)
 		if key == Qt.Key.Key_Tab:
 			documentIndentMore(self.document(), cursor)
 		elif key == Qt.Key.Key_Backtab:
 			documentIndentLess(self.document(), cursor)
 		elif key == Qt.Key.Key_Return:
 			markupClass = self.tab.getActiveMarkupClass()
-			if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+			if event.modifiers() & Qt.KeyboardModifiers.ControlModifier:
 				cursor.insertText('\n')
 				self.ensureCursorVisible()
 			elif self.tableModeEnabled and tablemode.handleReturn(cursor, markupClass,
-					newRow=(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)):
+					newRow=(event.modifiers() & Qt.KeyboardModifiers.ShiftModifier)):
 				self.setTextCursor(cursor)
 				self.ensureCursorVisible()
 			else:
-				if event.modifiers() & Qt.KeyboardModifier.ShiftModifier and markupClass == MarkdownMarkup:
+				if event.modifiers() & Qt.KeyboardModifiers.ShiftModifier and markupClass == MarkdownMarkup:
 					# Insert Markdown-style line break
 					cursor.insertText('  ')
 				self.handleReturn(cursor)
