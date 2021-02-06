@@ -423,7 +423,7 @@ class ReTextTab(QSplitter):
 		if self.previewState == PreviewNormal and replaceText is None:
 			return self.previewBox.findText(text, flags)
 		cursor = self.editBox.textCursor()
-		if wrap and flags & QTextDocument.FindFlag.FindBackward:
+		if wrap and flags & QTextDocument.FindFlags.FindBackward:
 			cursor.movePosition(QTextCursor.MoveOperation.End)
 		elif wrap:
 			cursor.movePosition(QTextCursor.MoveOperation.Start)
@@ -450,7 +450,7 @@ class ReTextTab(QSplitter):
 		cursor = self.editBox.textCursor()
 		cursor.beginEditBlock()
 		cursor.movePosition(QTextCursor.MoveOperation.Start)
-		flags = QTextDocument.FindFlags()
+		flags = QTextDocument.FindFlags(0)
 		cursor = lastCursor = self.editBox.document().find(text, cursor, flags)
 		while not cursor.isNull():
 			cursor.insertText(replaceText)

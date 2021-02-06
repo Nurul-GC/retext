@@ -724,11 +724,11 @@ class ReTextWindow(QMainWindow):
 			self.searchEdit.setFocus(Qt.FocusReason.ShortcutFocusReason)
 
 	def find(self, back=False, replace=False):
-		flags = QTextDocument.FindFlags()
+		flags = QTextDocument.FindFlags(0)
 		if back:
-			flags |= QTextDocument.FindFlag.FindBackward
+			flags |= QTextDocument.FindFlags.FindBackward
 		if self.csBox.isChecked():
-			flags |= QTextDocument.FindFlag.FindCaseSensitively
+			flags |= QTextDocument.FindFlags.FindCaseSensitively
 		text = self.searchEdit.text()
 		replaceText = self.replaceEdit.text() if replace else None
 		found = self.currentTab.find(text, flags, replaceText=replaceText)

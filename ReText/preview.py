@@ -61,7 +61,7 @@ class ReTextPreview(QTextBrowser):
 
 	def findText(self, text, flags, wrap=False):
 		cursor = self.textCursor()
-		if wrap and flags & QTextDocument.FindFlag.FindBackward:
+		if wrap and flags & QTextDocument.FindFlags.FindBackward:
 			cursor.movePosition(QTextCursor.MoveOperation.End)
 		elif wrap:
 			cursor.movePosition(QTextCursor.MoveOperation.Start)
