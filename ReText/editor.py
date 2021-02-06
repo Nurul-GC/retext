@@ -288,7 +288,7 @@ class ReTextEdit(QTextEdit):
 		cursor.insertText(keyStr + text + keyClose)
 
 	def keyPressEvent(self, event):
-		key = event.key()
+		key = Qt.Key(event.key())
 		cursor = self.textCursor()
 		if key == Qt.Key.Key_Backspace and event.modifiers() & Qt.KeyboardModifiers.GroupSwitchModifier:
 			# Workaround for https://bugreports.qt.io/browse/QTBUG-49771
