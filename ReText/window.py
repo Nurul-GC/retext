@@ -803,7 +803,7 @@ class ReTextWindow(QMainWindow):
 			extsdir = QDir(extsprefix+'/export-extensions/')
 			if extsdir.exists():
 				for fileInfo in extsdir.entryInfoList(['*.desktop', '*.ini'],
-				QDir.Filter.Files | QDir.Filter.Readable):
+						QDir.Filters.Files | QDir.Filters.Readable):
 					extensions.append(self.readExtension(fileInfo.filePath()))
 		locale = QLocale.system().name()
 		self.extensionActions = []
