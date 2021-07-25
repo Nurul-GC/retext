@@ -18,18 +18,18 @@ automatically):
 
 * [PyQt5](https://riverbankcomputing.com/software/pyqt/intro) (5.11 or later)
 * [Markups](https://pypi.org/project/Markups/) (2.0 or later)
+* [Markdown](https://pypi.org/project/Markdown/) — for Markdown support
+* [docutils](https://pypi.org/project/docutils/) — for reStructuredText support
 
 We also recommend having these packages installed:
 
-* [Markdown](https://pypi.org/project/Markdown/) — for Markdown support
-* [docutils](https://pypi.org/project/docutils/) — for reStructuredText support
 * [pyenchant](https://pypi.org/project/pyenchant/) — for spell checking support
 * [PyQtWebEngine](https://pypi.org/project/PyQtWebEngine/) — a more powerful
   preview engine with JavaScript support
 
 Translation files are already compiled for release tarballs and will be
 automatically loaded. For development snapshots, compile translations using
-`lrelease locale/*.ts` command (on Debian-based systems, `lrelease` is
+`lrelease ReText/locale/*.ts` command (on Debian-based systems, `lrelease` is
 available in `qttools5-dev-tools` package). Translation files can also be
 loaded from `/usr/share/retext/` directory.
 

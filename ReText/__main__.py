@@ -24,8 +24,7 @@ import signal
 import markups
 from os import devnull
 from os.path import join
-from ReText import datadirs, settings, globalSettings, app_version
-from ReText import initializeDataDirs
+from ReText import packageDir, settings, globalSettings, app_version
 from ReText.window import ReTextWindow
 
 from PyQt5.QtCore import QCommandLineOption, QCommandLineParser, QFile, \
@@ -60,7 +59,9 @@ def main():
 
 	# Needed for Qt WebEngine on Windows
 	QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-	QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+	# Needed only for Qt 5, enabled by default in Qt 6
+	if hasattr(Qt.ApplicationAttribute, 'AA_UseHighDpiPixmaps'):
+		QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 	app = QApplication(sys.argv)
 	app.setOrganizationName("ReText project")
 	app.setApplicationName("ReText")
@@ -70,12 +71,9 @@ def main():
 	app.setDesktopFileName('me.mitya57.ReText.desktop')
 	QNetworkProxyFactory.setUseSystemConfiguration(True)
 
-	initializeDataDirs()
 	RtTranslator = QTranslator()
-	for path in datadirs:
-		if RtTranslator.load('retext_' + globalSettings.uiLanguage,
-		                     join(path, 'locale')):
-			break
+	RtTranslator.load('retext_' + globalSettings.uiLanguage,
+	                  join(packageDir, 'locale'))
 	QtTranslator = QTranslator()
 	QtTranslator.load("qtbase_" + globalSettings.uiLanguage,
 		QLibraryInfo.location(QLibraryInfo.LibraryLocation.TranslationsPath))

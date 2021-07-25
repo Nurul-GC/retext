@@ -27,7 +27,7 @@ class HtmlDialog(QDialog):
 		verticalLayout = QVBoxLayout(self)
 		self.textEdit = QTextEdit(self)
 		self.textEdit.setReadOnly(True)
-		self.textEdit.setFont(globalSettings.editorFont)
+		self.textEdit.setFont(globalSettings.getEditorFont())
 		self.hl = ReTextHighlighter(self.textEdit.document())
 		self.hl.docType = 'html'
 		verticalLayout.addWidget(self.textEdit)
@@ -40,9 +40,9 @@ class LocaleDialog(QDialog):
 	def __init__(self, parent, defaultText=None):
 		QDialog.__init__(self, parent)
 		verticalLayout = QVBoxLayout(self)
-		self.label = QLabel(self)
-		self.label.setText(self.tr('Enter locale name (example: en_US)'))
-		verticalLayout.addWidget(self.label)
+		labelText = self.tr('Enter locale name (example: en_US)') + '\n'
+		labelText += self.tr('It is possible to specify multiple languages, separated by comma.')
+		verticalLayout.addWidget(QLabel(labelText, self))
 		self.localeEdit = QLineEdit(self)
 		if defaultText:
 			self.localeEdit.setText(defaultText)
@@ -54,3 +54,28 @@ class LocaleDialog(QDialog):
 		verticalLayout.addWidget(buttonBox)
 		buttonBox.accepted.connect(self.accept)
 		buttonBox.rejected.connect(self.reject)
+
+
+class EncodingDialog(QDialog):
+	def __init__(self, parent):
+		super().__init__(parent)
+		verticalLayout = QVBoxLayout(self)
+		verticalLayout.addWidget(QLabel(self.tr('Enter encoding name:'), self))
+		self.encodingEdit = QLineEdit(self)
+		self.encodingEdit.textChanged.connect(self.handleTextChanged)
+		verticalLayout.addWidget(self.encodingEdit)
+		self.buttonBox = QDialogButtonBox(self)
+		self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel
+		                                  | QDialogButtonBox.StandardButton.Ok)
+		verticalLayout.addWidget(self.buttonBox)
+		self.buttonBox.accepted.connect(self.accept)
+		self.buttonBox.rejected.connect(self.reject)
+
+	def handleTextChanged(self, value):
+		button = self.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+		try:
+			"1".encode(value)
+		except LookupError:
+			button.setEnabled(False)
+		else:
+			button.setEnabled(True)

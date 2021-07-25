@@ -26,12 +26,7 @@ from ReText.editor import ReTextEdit
 from ReText.highlighter import ReTextHighlighter
 from ReText.preview import ReTextPreview
 
-try:
-	import enchant
-except ImportError:
-	enchant = None
-
-from PyQt5.QtCore import pyqtSignal, Qt, QDir, QFile, QFileInfo, QPoint, QTextStream, QTimer, QUrl
+from PyQt5.QtCore import pyqtSignal, Qt, QDir, QFile, QFileInfo, QPoint, QTimer, QUrl
 from PyQt5.QtGui import QPalette, QTextCursor, QTextDocument
 from PyQt5.QtWidgets import QApplication, QTextEdit, QSplitter, QMessageBox
 
@@ -74,14 +69,16 @@ class ReTextTab(QSplitter):
 		self.previewOutdated = False
 		self.conversionPending = False
 		self.cssFileExists = False
+		self.forceDisableAutoSave = False
 
 		self.converterProcess = converterprocess.ConverterProcess()
 		self.converterProcess.conversionDone.connect(self.updatePreviewBox)
 
 		textDocument = self.editBox.document()
 		self.highlighter = ReTextHighlighter(textDocument)
-		if enchant is not None and parent.actionEnableSC.isChecked():
-			self.highlighter.dictionary = enchant.Dict(parent.sl or None)
+		if parent.actionEnableSC.isChecked():
+			dictionaries, _errors = parent.getSpellCheckDictionaries()
+			self.highlighter.dictionaries = dictionaries
 			# Rehighlighting is tied to the change in markup class that
 			# happens at the end of this function
 
@@ -265,15 +262,13 @@ class ReTextTab(QSplitter):
 			html = self.getHtmlFromConverted(self.converted)
 		except Exception:
 			return self.p.printError()
+		self.previewBox.setFont(globalSettings.getPreviewFont())
 		if isinstance(self.previewBox, QTextEdit):
 			self.previewBox.lastRenderTime = time.time()
 			self.previewBox.setHtml(html)
-			self.previewBox.document().setDefaultFont(globalSettings.font)
 			self.previewBox.updateScrollPosition(scrollbar.minimum(),
 			                                     scrollbar.maximum())
 		else:
-			self.previewBox.updateFontSettings()
-
 			# Always provide a baseUrl otherwise QWebView will
 			# refuse to show images or other external objects
 			if self._fileName:
@@ -330,46 +325,49 @@ class ReTextTab(QSplitter):
 		except ImportError:
 			return
 
-		with open(fileName, 'rb') as inputFile:
-			raw = inputFile.read(2048)
+		try:
+			with open(fileName, 'rb') as inputFile:
+				raw = inputFile.read(2048)
+		except OSError:
+			return None
 
 		result = chardet.detect(raw)
 		if result['confidence'] > 0.9:
-			if result['encoding'].lower() in ('ascii', 'utf-8-sig'):
+			if result['encoding'].lower() == 'ascii':
 				# UTF-8 files can be falsely detected as ASCII files if they
 				# don't contain non-ASCII characters in first 2048 bytes.
 				# We map ASCII to UTF-8 to avoid such situations.
-				# Also map UTF-8-SIG to UTF-8 because Qt does not understand it.
 				return 'utf-8'
 			return result['encoding']
 
 	def readTextFromFile(self, fileName=None, encoding=None):
 		previousFileName = self._fileName
-		if fileName:
-			self._fileName = fileName
+		fileName = fileName or self._fileName
 
 		# Only try to detect encoding if it is not specified
 		if encoding is None and globalSettings.detectEncoding:
-			encoding = self.detectFileEncoding(self._fileName)
+			encoding = self.detectFileEncoding(fileName)
+		encoding = encoding or globalSettings.defaultCodec or None
 
 		# TODO: why do we open the file twice: for detecting encoding
 		# and for actual read? Can we open it just once?
-		openfile = QFile(self._fileName)
-		openfile.open(QFile.OpenModeFlag.ReadOnly)
-		stream = QTextStream(openfile)
-		encoding = encoding or globalSettings.defaultCodec
+		try:
+			with open(fileName, encoding=encoding) as openfile:
+				text = openfile.read()
+		except (OSError, UnicodeDecodeError, LookupError) as ex:
+			QMessageBox.warning(self, '', str(ex))
+			return
+
 		if encoding:
-			stream.setCodec(encoding)
 			# If encoding is specified or detected, we should save the file with
 			# the same encoding
 			self.editBox.document().setProperty("encoding", encoding)
 
-		text = stream.readAll()
-		openfile.close()
-
+		self._fileName = fileName
 		if previousFileName != self._fileName:
 			self.updateActiveMarkupClass()
 
+		self.forceDisableAutoSave = False
 		self.editBox.setPlainText(text)
 		self.editBox.document().setModified(False)
 		self.handleModificationChanged()
@@ -391,20 +389,16 @@ class ReTextTab(QSplitter):
 		cursor.select(QTextCursor.SelectionType.Document)
 		text = cursor.selectedText().replace('\u2029', '\n')
 
-		savefile = QFile(fileName or self._fileName)
-		result = savefile.open(QFile.OpenModeFlag.WriteOnly)
-		if result:
-			savestream = QTextStream(savefile)
-
-			# Save the file with original encoding
-			encoding = self.editBox.document().property("encoding")
-			encoding = encoding or globalSettings.defaultCodec
-			if encoding is not None:
-				savestream.setCodec(encoding)
-
-			savestream << text
-			savefile.close()
-		return result
+		fileName = fileName or self._fileName
+		encoding = self.editBox.document().property("encoding")
+		encoding = encoding or globalSettings.defaultCodec or None
+		try:
+			with open(fileName, 'w', encoding=encoding) as savefile:
+				savefile.write(text)
+		except (OSError, UnicodeEncodeError, LookupError) as ex:
+			QMessageBox.warning(self, '', str(ex))
+			return False
+		return True
 
 	def saveTextToFile(self, fileName=None):
 		# Sets fileName as tab fileName and writes the text to that file
@@ -412,6 +406,7 @@ class ReTextTab(QSplitter):
 			self.p.fileSystemWatcher.removePath(self._fileName)
 		result = self.writeTextToFile(fileName)
 		if result:
+			self.forceDisableAutoSave = False
 			self.editBox.document().setModified(False)
 			self.p.fileSystemWatcher.addPath(fileName or self._fileName)
 			if fileName and self._fileName != fileName:
@@ -530,3 +525,9 @@ class ReTextTab(QSplitter):
 			QMessageBox.warning(self, self.tr("File could not be created"),
 			                    self.tr("Could not create file '%s': %s") % (fileToCreate, err))
 			return False
+
+	def autoSaveActive(self) -> bool:
+		return (globalSettings.autoSave
+		        and not self.forceDisableAutoSave
+		        and self.fileName is not None
+		        and QFileInfo(self.fileName).isWritable())
