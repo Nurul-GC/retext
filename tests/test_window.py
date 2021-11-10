@@ -28,7 +28,9 @@ import warnings
 from markups.abstract import ConvertedMarkup
 
 from PyQt5.QtCore import pyqtSignal, QObject, Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication, QMessageBox
 import ReText
 from ReText.window import ReTextWindow
 
@@ -58,7 +60,8 @@ class TestWindow(unittest.TestCase):
         self.readListFromSettingsMock = patch('ReText.window.readListFromSettings', return_value=[]).start()
         self.writeListToSettingsMock  = patch('ReText.window.writeListToSettings').start()
         self.globalSettingsMock       = patch('ReText.window.globalSettings', MagicMock(**ReText.configOptions)).start()
-        self.fileSystemWatcherMock    = patch('ReText.window.QFileSystemWatcher').start()
+        self.fileSystemWatcherPatcher = patch('ReText.window.QFileSystemWatcher')
+        self.fileSystemWatcherMock    = self.fileSystemWatcherPatcher.start()
         ReText.tab.globalSettings = self.globalSettingsMock
 
     def tearDown(self):
@@ -261,7 +264,7 @@ class TestWindow(unittest.TestCase):
 
     @patch('ReText.window.QFileDialog.getOpenFileNames', return_value=([os.path.join(path_to_testdata, 'existing_file.md')], None))
     @patch('ReText.window.QFileDialog.getSaveFileName', return_value=(os.path.join(path_to_testdata, 'not_existing_file.rst'), None))
-    def test_markupDependentWidgetStates_afterSavingDocumentAsDifferentMarkup(self, getOpenFileNamesMock, getSaveFileNameMock):
+    def test_markupDependentWidgetStates_afterSavingDocumentAsDifferentMarkup(self, getSaveFileNameMock, getOpenFileNamesMock):
         self.window = ReTextWindow()
         self.window.createNew('')
         self.window.actionOpen.trigger()
@@ -278,7 +281,7 @@ class TestWindow(unittest.TestCase):
 
     @patch('ReText.window.QFileDialog.getOpenFileNames', return_value=([os.path.join(path_to_testdata, 'existing_file.md')], None))
     @patch('ReText.window.QFileDialog.getSaveFileName', return_value=(os.path.join(path_to_testdata, 'not_existing_file.md'), None))
-    def test_saveWidgetStates(self, getOpenFileNamesMock, getSaveFileNameMock):
+    def test_saveWidgetStates(self, getSaveFileNameMock, getOpenFileNamesMock):
         self.window = ReTextWindow()
 
         # check if save is disabled at first
@@ -323,37 +326,6 @@ class TestWindow(unittest.TestCase):
             os.remove(os.path.join(path_to_testdata, 'not_existing_file.md'))
 
     @patch('ReText.window.QFileDialog.getOpenFileNames', return_value=([os.path.join(path_to_testdata, 'existing_file.md')], None))
-    @patch('ReText.window.QFileDialog.getSaveFileName', return_value=(os.path.join(path_to_testdata, 'not_existing_file.md'), None))
-    def test_saveWidgetStates_autosaveEnabled(self, getOpenFileNamesMock, getSaveFileNameMock):
-        self.globalSettingsMock.autoSave = True
-        self.window = ReTextWindow()
-
-        # check if save is disabled at first
-        self.window.createNew('')
-        app.processEvents()
-        self.check_widgets_disabled(self.window, ('actionSave',))
-
-        # check if it stays enabled after inserting some text (because autosave
-        # can't save without a filename)
-        self.window.currentTab.editBox.textCursor().insertText('some text')
-        app.processEvents()
-        self.check_widgets_enabled(self.window, ('actionSave',))
-
-        # check if it's disabled after saving
-        try:
-            self.window.actionSaveAs.trigger()
-            app.processEvents()
-            self.check_widgets_disabled(self.window, ('actionSave',))
-
-            # check if it is still disabled after inserting some text (because
-            # autosave will take care of saving now that the filename is known)
-            self.window.currentTab.editBox.textCursor().insertText('some text')
-            app.processEvents()
-            self.check_widgets_disabled(self.window, ('actionSave',))
-        finally:
-            os.remove(os.path.join(path_to_testdata, 'not_existing_file.md'))
-
-    @patch('ReText.window.QFileDialog.getOpenFileNames', return_value=([os.path.join(path_to_testdata, 'existing_file.md')], None))
     def test_encodingAndReloadWidgetStates(self, getOpenFileNamesMock):
         self.window = ReTextWindow()
 
@@ -393,7 +365,78 @@ class TestWindow(unittest.TestCase):
         with suppress(PermissionError):
             os.remove(fileName)
 
+    def test_autoSave(self):
+        self.globalSettingsMock.autoSave = True
+        window = ReTextWindow()
+        window.autoSaveTimer.start(250)
+        fileName = tempfile.mkstemp(suffix='.mkd')[1]
+        with open(fileName, 'w', encoding='utf-8') as tempFile:
+            tempFile.write('first content')
+        window.openFileWrapper(fileName)
+
+        cursor = window.currentTab.editBox.textCursor()
+        cursor.select(QTextCursor.SelectionType.Document)
+        cursor.insertText('second content')
+        QTest.qWait(300)  # more than the timer interval
+        with open(fileName, 'r', encoding='utf-8') as tempFile:
+            self.assertEqual(tempFile.read(), 'second content')
+
+        window.closeTab(0)
+        with suppress(PermissionError):
+            os.remove(fileName)
+
+    @patch('ReText.window.QMessageBox.exec', return_value=None)
+    def test_reloadFileNotModified(self, messageBoxExecMock):
+        self.fileSystemWatcherPatcher.stop()
+        window = ReTextWindow()
+        fileName = tempfile.mkstemp(suffix='.mkd')[1]
+        with open(fileName, 'w', encoding='utf-8') as tempFile:
+            tempFile.write('first content')
+        window.openFileWrapper(fileName)
+        self.assertEqual(window.fileSystemWatcher.files(), [fileName.replace('\\', '/')])
+        editBox = window.currentTab.editBox
+        self.assertEqual(editBox.toPlainText(), 'first content')
+        self.assertFalse(editBox.document().isModified())
+        app.processEvents()
+
+        with open(fileName, 'w', encoding='utf-8') as tempFile:
+            tempFile.write('modified externally')
+        QTest.qWait(100)
+        self.assertEqual(editBox.toPlainText(), 'modified externally')
+        self.assertFalse(window.currentTab.forceDisableAutoSave)
+
+        window.closeTab(0)
+        self.assertEqual(window.fileSystemWatcher.files(), [])
+        with suppress(PermissionError):
+            os.remove(fileName)
+
+    @patch('ReText.window.QMessageBox.warning', return_value=QMessageBox.StandardButton.Discard)
+    @patch('ReText.window.QMessageBox.exec', return_value=None)
+    def test_reloadFileModified(self, messageBoxExecMock, messageBoxWarningMock):
+        self.fileSystemWatcherPatcher.stop()
+        window = ReTextWindow()
+        fileName = tempfile.mkstemp(suffix='.mkd')[1]
+        with open(fileName, 'w', encoding='utf-8') as tempFile:
+            tempFile.write('first content')
+        window.openFileWrapper(fileName)
+        self.assertEqual(window.fileSystemWatcher.files(), [fileName.replace('\\', '/')])
+        editBox = window.currentTab.editBox
+        self.assertEqual(editBox.toPlainText(), 'first content')
+
+        editBox.textCursor().insertText('modified ')
+        app.processEvents()
+        self.assertTrue(editBox.document().isModified())
+
+        with open(fileName, 'w', encoding='utf-8') as tempFile:
+            tempFile.write('modified externally')
+        QTest.qWait(100)
+        self.assertEqual(editBox.toPlainText(), 'modified first content')
+        self.assertTrue(window.currentTab.forceDisableAutoSave)
+
+        window.closeTab(0)
+        self.assertEqual(window.fileSystemWatcher.files(), [])
+        with suppress(PermissionError):
+            os.remove(fileName)
 
 if __name__ == '__main__':
     unittest.main()
-

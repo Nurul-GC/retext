@@ -24,7 +24,7 @@ import warnings
 
 from ReText import (getBundledIcon, app_version, globalSettings,
                     readListFromSettings, writeListToSettings)
-from ReText.tab import (ReTextTab, ReTextWebKitPreview, ReTextWebEnginePreview,
+from ReText.tab import (ReTextTab, ReTextWebEnginePreview,
                         PreviewDisabled, PreviewNormal, PreviewLive)
 from ReText.dialogs import EncodingDialog, HtmlDialog, LocaleDialog
 from ReText.config import ConfigDialog, setIconThemeFromSettings
@@ -87,7 +87,7 @@ class ReTextWindow(QMainWindow):
 		self.treeView.doubleClicked.connect(self.treeItemSelected)
 		self.tabWidget = QTabWidget(self.splitter)
 		self.initTabWidget()
-		self.splitter.setSizes([self.width() / 5, self.width() * 4 / 5])
+		self.splitter.setSizes([self.width() // 5, self.width() * 4 // 5])
 		self.initDirectoryTree(globalSettings.showDirectoryTree, globalSettings.directoryPath)
 		self.setCentralWidget(self.splitter)
 		self.tabWidget.currentChanged.connect(self.changeIndex)
@@ -199,15 +199,11 @@ class ReTextWindow(QMainWindow):
 		self.clipboardDataChanged()
 		self.actionEnableSC = self.act(self.tr('Enable'), trigbool=self.enableSpellCheck)
 		self.actionSetLocale = self.act(self.tr('Set locale'), trig=self.changeLocale)
-		self.actionWebKit = self.act(self.tr('Use WebKit renderer'), trigbool=self.enableWebKit)
-		if ReTextWebKitPreview is None:
-			globalSettings.useWebKit = False
-			self.actionWebKit.setEnabled(False)
-		self.actionWebKit.setChecked(globalSettings.useWebKit)
 		self.actionWebEngine = self.act(self.tr('Use WebEngine (Chromium) renderer'),
 			trigbool=self.enableWebEngine)
 		if ReTextWebEnginePreview is None:
 			globalSettings.useWebEngine = False
+			self.actionWebEngine.setEnabled(False)
 		self.actionWebEngine.setChecked(globalSettings.useWebEngine)
 		self.actionShow = self.act(self.tr('Show directory'), 'system-file-manager', self.showInDir)
 		self.actionFind = self.act(self.tr('Next'), 'go-next', self.find,
@@ -327,10 +323,7 @@ class ReTextWindow(QMainWindow):
 		menuFormat.addAction(self.actionBold)
 		menuFormat.addAction(self.actionItalic)
 		menuFormat.addAction(self.actionUnderline)
-		if ReTextWebKitPreview is not None or ReTextWebEnginePreview is None:
-			menuEdit.addAction(self.actionWebKit)
-		else:
-			menuEdit.addAction(self.actionWebEngine)
+		menuEdit.addAction(self.actionWebEngine)
 		menuEdit.addSeparator()
 		menuEdit.addAction(self.actionViewHtml)
 		menuEdit.addAction(self.actionPreview)
@@ -392,10 +385,10 @@ class ReTextWindow(QMainWindow):
 		self.searchBar.addAction(self.actionCloseSearch)
 		self.searchBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 		self.searchBar.setVisible(False)
+		self.autoSaveTimer = QTimer(self)
+		self.autoSaveTimer.timeout.connect(self.saveAll)
 		if globalSettings.autoSave:
-			timer = QTimer(self)
-			timer.start(60000)
-			timer.timeout.connect(self.saveAll)
+			self.autoSaveTimer.start(60000)
 		self.ind = None
 		if enchant is not None:
 			self.spellCheckLanguages = globalSettings.spellCheckLocale
@@ -495,7 +488,7 @@ class ReTextWindow(QMainWindow):
 
 	def updateTabTitle(self, ind, tab):
 		changed = tab.editBox.document().isModified()
-		if changed and not tab.autoSaveActive():
+		if changed:
 			title = tab.getBaseName() + '*'
 		else:
 			title = tab.getBaseName()
@@ -546,8 +539,6 @@ class ReTextWindow(QMainWindow):
 
 		if tab == self.currentTab:
 			changed = tab.editBox.document().isModified()
-			if tab.autoSaveActive():
-				changed = False
 			self.actionSave.setEnabled(changed)
 			self.updateTabTitle(self.ind, tab)
 			self.setWindowModified(changed)
@@ -645,14 +636,7 @@ class ReTextWindow(QMainWindow):
 		self.currentTab.updateBoxesVisibility()
 		self.currentTab.triggerPreviewUpdate()
 
-	def enableWebKit(self, enable):
-		globalSettings.useWebKit = enable
-		globalSettings.useWebEngine = False
-		for tab in self.iterateTabs():
-			tab.rebuildPreviewBox()
-
 	def enableWebEngine(self, enable):
-		globalSettings.useWebKit = False
 		globalSettings.useWebEngine = enable
 		for tab in self.iterateTabs():
 			tab.rebuildPreviewBox()
@@ -730,7 +714,7 @@ class ReTextWindow(QMainWindow):
 			self.searchEdit.setFocus(Qt.FocusReason.ShortcutFocusReason)
 
 	def find(self, back=False, replace=False):
-		flags = QTextDocument.FindFlags()
+		flags = QTextDocument.FindFlag(0)
 		if back:
 			flags |= QTextDocument.FindFlag.FindBackward
 		if self.csBox.isChecked():
@@ -975,7 +959,7 @@ class ReTextWindow(QMainWindow):
 
 		encoding = globalSettings.defaultCodec or None
 		try:
-			with open(fileName, encoding=encoding) as htmlFile:
+			with open(fileName, 'w', encoding=encoding) as htmlFile:
 				htmlFile.write(htmltext)
 		except (OSError, UnicodeEncodeError, LookupError) as ex:
 			QMessageBox.warning(self, '', str(ex))
@@ -1010,8 +994,6 @@ class ReTextWindow(QMainWindow):
 			self.saveHtml(fileName)
 
 	def getDocumentForPrint(self, title, htmltext, preview):
-		if globalSettings.useWebKit:
-			return preview
 		try:
 			return self.textDocument(title, htmltext)
 		except Exception:
@@ -1209,7 +1191,6 @@ class ReTextWindow(QMainWindow):
 			tab.readTextFromFile()
 		else:
 			tab.forceDisableAutoSave = True
-			self.tabModificationStateChanged(tab)
 			self.tabWidget.setCurrentWidget(tab)
 			text = self.tr(
 				'This document has been modified by other application.\n'
